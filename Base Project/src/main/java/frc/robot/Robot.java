@@ -62,7 +62,11 @@ public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
 
     private RobotContainer m_robotContainer;
+
     public CANSparkMax intake = new CANSparkMax(INTAKE_PORT, MotorType.kBrushless);
+    public CANSparkMax arm_motor = new CANSparkMax(ARM_PORT, MotorType.kBrushless);
+    private RelativeEncoder arm_Encoder = arm_motor.getEncoder();
+    
     public Joystick controller = new Joystick(OPERATOR_PORT);
 
     private WPI_TalonSRX leftTalon = new WPI_TalonSRX(LeftTalonSRX);
@@ -70,7 +74,14 @@ public class Robot extends TimedRobot {
     private WPI_VictorSPX leftVictor = new WPI_VictorSPX(LeftVictorSPX);
     private WPI_VictorSPX rightVictor = new WPI_VictorSPX(RightVictorSPX);
 
+
+    DigitalInput foldLimitSwitch = new DigitalInput(LIMIT_SWITCH);
+    DigitalInput openLimitSwitch = new DigitalInput(GROUND_SWITCH);
+    ArmFeedforward armFeedforward = new ArmFeedforward(0, 0.048, 0);
+
     private DifferentialDrive drive = new DifferentialDrive(leftVictor::set, rightVictor::set);
+    boolean moveUp = false;
+    boolean moveDown = false;
 
     /**
      * This function is run when the robot is first started up and should be
@@ -105,7 +116,10 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("FWD", controller.getRawAxis(LEFT_STICK_Y));
         SmartDashboard.putNumber("ROT", controller.getRawAxis(RIGHT_STICK_X));
 
-
+        if(!foldLimitSwitch.get()){
+            arm_Encoder.setPosition(-0.323);
+            
+        }
     }
 
 
@@ -149,6 +163,8 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
+        arm_Encoder.setPositionConversionFactor(1/50.0 * 16/42.0 * 2 * Math.PI);
+        
     }
 
     /**
@@ -166,21 +182,29 @@ public class Robot extends TimedRobot {
             intake.set(0);
         }
 
+
         
-        // double rotation = controller.getRawAxis(RIGHT_STICK_X);
-        // double speed = controller.getRawAxis(LEFT_STICK_Y);
+        
+        if((controller.getRawButtonPressed(X) || moveDown) && foldLimitSwitch.get()){
+            arm_motor.set(resistGravity() + FOLD_SPEED);
+            moveUp = false;
+            moveDown = true;
+        }
+        else if((controller.getRawButtonPressed(Y) || moveUp) && openLimitSwitch.get()){
+            arm_motor.set(resistGravity() + OPEN_SPEED);   
+            moveDown = false;
+            moveUp = true;
+        }
 
-        // double left = speed + rotation;
-        // double right = speed - rotation;
-
-        // if(Math.max(Math.abs(speed), Math.abs(rotation)) > 1){
-        //     left /= Math.max(Math.abs(speed), Math.abs(rotation));
-        //     right /= Math.max(Math.abs(speed), Math.abs(rotation));
-        // }
-
-        // leftVictor.set(left);
-        // rightVictor.set(right);
-        // drive.feed();
+        
+        if(!openLimitSwitch.get() && !moveDown){
+            arm_motor.set(0);
+            moveUp = false;
+        }
+        else if (!foldLimitSwitch.get() && !moveUp){
+            arm_motor.set(0);
+            moveDown = false;
+        }      
 
         drive.arcadeDrive(controller.getRawAxis(LEFT_STICK_Y) /2 , controller.getRawAxis(RIGHT_STICK_X) / 2);
 
@@ -198,7 +222,9 @@ public class Robot extends TimedRobot {
     public void testPeriodic() {
     }
 
-
+    public double resistGravity(){
+        return armFeedforward.calculate(arm_Encoder.getPosition(), 0);
+    }
   
 
 }
