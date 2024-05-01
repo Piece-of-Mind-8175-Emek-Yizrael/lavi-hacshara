@@ -181,8 +181,6 @@ public class Robot extends TimedRobot {
         else if(controller.getRawButtonReleased(A) || controller.getRawButtonReleased(B)) {
             intake.set(0);
         }
-
-
         
         
         if((controller.getRawButtonPressed(X) || moveDown) && foldLimitSwitch.get()){
@@ -196,6 +194,7 @@ public class Robot extends TimedRobot {
             moveUp = true;
         }
 
+
         
         if(!openLimitSwitch.get() && !moveDown){
             arm_motor.set(0);
@@ -205,6 +204,20 @@ public class Robot extends TimedRobot {
             arm_motor.set(0);
             moveDown = false;
         }      
+
+        if (controller.getRawButton(LB)){
+            if (openLimitSwitch.get()){
+                arm_motor.set(resistGravity() + OPEN_SPEED);
+            }else {
+                arm_motor.set(0);
+                intake.set(INTAKE_SPEED);
+            }
+        }else if (foldLimitSwitch.get()){
+            arm_motor.set(resistGravity() + FOLD_SPEED);
+            intake.set(0);
+        }else {
+            arm_motor.set(0);
+        }
 
         drive.arcadeDrive(controller.getRawAxis(LEFT_STICK_Y) /2 , controller.getRawAxis(RIGHT_STICK_X) / 2);
 
