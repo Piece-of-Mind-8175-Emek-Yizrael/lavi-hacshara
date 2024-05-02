@@ -80,8 +80,17 @@ public class Robot extends TimedRobot {
     ArmFeedforward armFeedforward = new ArmFeedforward(0, 0.048, 0);
 
     private DifferentialDrive drive = new DifferentialDrive(leftVictor::set, rightVictor::set);
-    boolean moveUp = false;
-    boolean moveDown = false;
+    boolean open = false;
+    boolean fold = false;
+
+    enum IntakeState{
+        toIntake,
+        toOuttake,
+        toHold
+    }
+
+    IntakeState intakeState = IntakeState.toHold;
+    IntakeState lastIntakeState = IntakeState.toHold;
 
     /**
      * This function is run when the robot is first started up and should be
@@ -167,57 +176,89 @@ public class Robot extends TimedRobot {
         
     }
 
+    private void intake(){
+        if(controller.getRawButtonPressed(A)){
+            intakeState = IntakeState.toIntake;
+        }
+        else if(controller.getRawButtonPressed(B)){
+            intakeState = IntakeState.toOuttake;
+        }
+        else if(controller.getRawButtonReleased(A) || controller.getRawButtonReleased(B)) {
+            intakeState = IntakeState.toHold;
+        }
+
+        if (lastIntakeState != intakeState){
+            switch (intakeState) {
+            case toIntake:
+                intake.set(INTAKE_SPEED);
+                break;
+            case toOuttake:
+                intake.set(OUTAKE_SPEED);
+                break;
+            case toHold:
+                intake.set(0);
+            }
+
+            lastIntakeState = intakeState;
+        }
+
+    
+    }
+
+    private void moveArm(){
+        if(controller.getRawButtonPressed(X) && foldLimitSwitch.get()){
+            open = false;
+            fold = true;
+        }
+        else if(controller.getRawButtonPressed(Y) && openLimitSwitch.get()){
+            fold = false;
+            open = true;
+        }
+
+        if (controller.getRawButtonPressed(RB)){
+            open = false;
+            fold = false;
+            intakeState = IntakeState.toHold;
+        }
+        else if (controller.getRawButton(LB)){
+            if (openLimitSwitch.get()){
+                open = true;
+            }else {
+                open = false;
+                intakeState = IntakeState.toIntake;
+            }
+        }
+        else if (controller.getRawButtonReleased(LB)){
+            open = false;
+            fold = true;
+            intakeState = IntakeState.toHold;
+        }
+        
+        if (open && openLimitSwitch.get()){
+            arm_motor.set(resistGravity() + OPEN_SPEED);
+        }else if(fold && foldLimitSwitch.get()){
+            arm_motor.set(resistGravity() + FOLD_SPEED);
+        }
+        else if(openLimitSwitch.get() && foldLimitSwitch.get()){
+            arm_motor.set(resistGravity());
+        }
+        else {
+            arm_motor.set(0);
+            open = false;
+            fold = false;
+        }
+    }
+
     /**
      * This function is called periodically during operator control.
      */
     @Override
     public void teleopPeriodic() {
-        if(controller.getRawButtonPressed(A)){
-            intake.set(INTAKE_SPEED);
-        }
-        else if(controller.getRawButtonPressed(B)){
-            intake.set(OUTAKE_SPEED);
-        }
-        else if(controller.getRawButtonReleased(A) || controller.getRawButtonReleased(B)) {
-            intake.set(0);
-        }
         
-        
-        if((controller.getRawButtonPressed(X) || moveDown) && foldLimitSwitch.get()){
-            arm_motor.set(resistGravity() + FOLD_SPEED);
-            moveUp = false;
-            moveDown = true;
-        }
-        else if((controller.getRawButtonPressed(Y) || moveUp) && openLimitSwitch.get()){
-            arm_motor.set(resistGravity() + OPEN_SPEED);   
-            moveDown = false;
-            moveUp = true;
-        }
+        moveArm();
 
+        intake();
 
-        
-        if(!openLimitSwitch.get() && !moveDown){
-            arm_motor.set(0);
-            moveUp = false;
-        }
-        else if (!foldLimitSwitch.get() && !moveUp){
-            arm_motor.set(0);
-            moveDown = false;
-        }      
-
-        if (controller.getRawButton(LB)){
-            if (openLimitSwitch.get()){
-                arm_motor.set(resistGravity() + OPEN_SPEED);
-            }else {
-                arm_motor.set(0);
-                intake.set(INTAKE_SPEED);
-            }
-        }else if (foldLimitSwitch.get()){
-            arm_motor.set(resistGravity() + FOLD_SPEED);
-            intake.set(0);
-        }else {
-            arm_motor.set(0);
-        }
 
         drive.arcadeDrive(controller.getRawAxis(LEFT_STICK_Y) /2 , controller.getRawAxis(RIGHT_STICK_X) / 2);
 
