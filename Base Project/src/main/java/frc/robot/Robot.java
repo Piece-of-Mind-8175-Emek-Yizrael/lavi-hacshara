@@ -12,6 +12,7 @@
 
 package frc.robot;
 
+<<<<<<< HEAD
 import static frc.robot.Constants.IntakeConstants.ARM_PORT;
 import static frc.robot.Constants.IntakeConstants.FOLD_SPEED;
 import static frc.robot.Constants.IntakeConstants.GROUND_SWITCH;
@@ -33,6 +34,9 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 
+=======
+<<<<<<< Updated upstream
+>>>>>>> feature/auto
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.math.controller.ArmFeedforward;
@@ -42,11 +46,56 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+<<<<<<< HEAD
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.event.EventLoop;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.motorcontrol.Victor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+=======
+=======
+import static frc.robot.Constants.ControllerConstants.OPERATOR_PORT;
+import static frc.robot.Constants.IntakeConstants.ARM_PORT;
+import static frc.robot.Constants.IntakeConstants.FOLD_SPEED;
+import static frc.robot.Constants.IntakeConstants.GROUND_SWITCH;
+import static frc.robot.Constants.IntakeConstants.INTAKE_PORT;
+import static frc.robot.Constants.IntakeConstants.INTAKE_SPEED;
+import static frc.robot.Constants.IntakeConstants.LIMIT_SWITCH;
+import static frc.robot.Constants.IntakeConstants.LeftTalonSRX;
+import static frc.robot.Constants.IntakeConstants.LeftVictorSPX;
+import static frc.robot.Constants.IntakeConstants.OPEN_SPEED;
+import static frc.robot.Constants.IntakeConstants.OUTAKE_SPEED;
+import static frc.robot.Constants.IntakeConstants.RightTalonSRX;
+import static frc.robot.Constants.IntakeConstants.RightVictorSPX;
+import static frc.robot.POM_lib.Joysticks.JoystickConstants.A;
+import static frc.robot.POM_lib.Joysticks.JoystickConstants.B;
+import static frc.robot.POM_lib.Joysticks.JoystickConstants.LB;
+import static frc.robot.POM_lib.Joysticks.JoystickConstants.LEFT_STICK_Y;
+import static frc.robot.POM_lib.Joysticks.JoystickConstants.RB;
+import static frc.robot.POM_lib.Joysticks.JoystickConstants.RIGHT_STICK_X;
+import static frc.robot.POM_lib.Joysticks.JoystickConstants.X;
+import static frc.robot.POM_lib.Joysticks.JoystickConstants.Y;
+
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.ctre.phoenix.sensors.WPI_PigeonIMU;
+import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
+
+import edu.wpi.first.hal.FRCNetComm.tInstances;
+import edu.wpi.first.hal.FRCNetComm.tResourceType;
+import edu.wpi.first.hal.HAL;
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+>>>>>>> Stashed changes
+>>>>>>> feature/auto
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -63,6 +112,11 @@ public class Robot extends TimedRobot {
 
     private RobotContainer m_robotContainer;
 
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> feature/auto
     public CANSparkMax intake = new CANSparkMax(INTAKE_PORT, MotorType.kBrushless);
     public CANSparkMax arm_motor = new CANSparkMax(ARM_PORT, MotorType.kBrushless);
     private RelativeEncoder arm_Encoder = arm_motor.getEncoder();
@@ -83,6 +137,11 @@ public class Robot extends TimedRobot {
     boolean open = false;
     boolean fold = false;
 
+<<<<<<< HEAD
+=======
+    double counter = 0.1;
+
+>>>>>>> feature/auto
     enum IntakeState{
         toIntake,
         toOuttake,
@@ -92,6 +151,29 @@ public class Robot extends TimedRobot {
     IntakeState intakeState = IntakeState.toHold;
     IntakeState lastIntakeState = IntakeState.toHold;
 
+<<<<<<< HEAD
+=======
+
+    private Timer timer = new Timer();
+    enum Phase{
+        start,
+        open,
+        take,
+        fold,
+        back,
+        done
+    }
+    Phase autonomousPhase;
+
+    int turns = 0;
+    private Timer driveTimer = new Timer();
+    WPI_PigeonIMU gyro = new WPI_PigeonIMU(7);
+    double lastAngle;
+
+    SendableChooser<Integer> m_chooser = new SendableChooser<>();
+
+>>>>>>> Stashed changes
+>>>>>>> feature/auto
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -103,6 +185,7 @@ public class Robot extends TimedRobot {
         m_robotContainer = RobotContainer.getInstance();
         HAL.report(tResourceType.kResourceType_Framework, tInstances.kFramework_RobotBuilder);
         enableLiveWindowInTest(true);
+<<<<<<< HEAD
         
         leftVictor.setInverted(true);
         leftTalon.setInverted(true);
@@ -111,6 +194,23 @@ public class Robot extends TimedRobot {
 
         leftTalon.follow(leftVictor);
         rightTalon.follow(rightVictor);
+=======
+<<<<<<< Updated upstream
+=======
+        
+        leftVictor.setInverted(false);
+        leftTalon.setInverted(false);
+        rightTalon.setInverted(true);
+        rightVictor.setInverted(true);
+
+        leftTalon.follow(leftVictor);
+        rightTalon.follow(rightVictor);
+
+        m_chooser.addOption("square", 0);
+        m_chooser.addOption("sequance", 1);
+        SmartDashboard.putData("auto chooser", m_chooser);
+>>>>>>> Stashed changes
+>>>>>>> feature/auto
     }
 
 
@@ -122,6 +222,11 @@ public class Robot extends TimedRobot {
         // and running subsystem periodic() methods.  This must be called from the robot's periodic
         // block in order for anything in the Command-based framework to work.
         CommandScheduler.getInstance().run();
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> feature/auto
         SmartDashboard.putNumber("FWD", controller.getRawAxis(LEFT_STICK_Y));
         SmartDashboard.putNumber("ROT", controller.getRawAxis(RIGHT_STICK_X));
 
@@ -129,6 +234,13 @@ public class Robot extends TimedRobot {
             arm_Encoder.setPosition(-0.323);
             
         }
+<<<<<<< HEAD
+=======
+
+        SmartDashboard.putNumber("gyro", gyro.getYaw());
+        SmartDashboard.putNumber("last Angle", lastAngle);
+>>>>>>> Stashed changes
+>>>>>>> feature/auto
     }
 
 
@@ -154,6 +266,90 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.schedule();
         }
+
+        timer.restart();
+        autonomousPhase = Phase.start;
+
+        driveTimer.restart();
+        lastAngle = gyro.getYaw();
+
+        counter = 0;
+    }
+
+    private boolean turn(double angle){
+        if (gyro.getYaw() <= lastAngle + angle){
+            drive.arcadeDrive(0, 0.14, false);
+            return false;
+        }
+        lastAngle = gyro.getYaw();
+        return true;
+    }
+
+    private void square(){
+        if (counter < 4){
+            if (driveTimer.get() < 2){
+                drive.arcadeDrive(0.18, 0, false);
+                return;
+            }
+                        
+            if (turn(88)){
+                driveTimer.restart();
+                counter++;
+            }
+        }
+    }
+
+    private void seq(){
+        switch (autonomousPhase){
+                    case start:
+                        if (timer.get() >= 2){
+                            autonomousPhase = Phase.open;
+                            break;
+                        }
+
+                    drive.arcadeDrive(0.2 , 0, false);
+                    break;
+
+                    case open:
+                        if (!openLimitSwitch.get()){
+                            autonomousPhase = Phase.take;
+                            intake.set(INTAKE_SPEED);
+                            arm_motor.set(0);
+                            timer.restart();
+                            break;
+                        }
+
+                        arm_motor.set(resistGravity() + OPEN_SPEED);
+                        break;
+
+                    case take:
+                        if (timer.get() >= 2){
+                            autonomousPhase = Phase.fold;
+                            intake.set(0);
+                            break;
+                        }
+                        break;
+            
+                    case fold:
+                        if (!foldLimitSwitch.get()){
+                            autonomousPhase = Phase.back;
+                            arm_motor.set(0);
+                            timer.restart();
+                            break;
+                        }
+
+                        arm_motor.set(resistGravity() + FOLD_SPEED);
+                        break;
+
+                    case back:
+                        if (timer.get() >=2){
+                            autonomousPhase = Phase.done;
+                            break;
+                        }
+
+                        drive.arcadeDrive(-0.2 , 0, false);
+                        break;
+                    }
     }
 
     /**
@@ -161,6 +357,36 @@ public class Robot extends TimedRobot {
     */
     @Override
     public void autonomousPeriodic() {
+        // SmartDashboard.putNumber("clock", timer.get());
+        // switch (autonomousPhase) {
+        //     case start:
+        //         SmartDashboard.putString("autoMode", "start");
+        //         break;
+        //     case take:
+        //         SmartDashboard.putString("autoMode", "take");
+        //         break;
+        //     case fold:
+        //         SmartDashboard.putString("autoMode", "fold");
+        //         break;
+        //     case back:
+        //         SmartDashboard.putString("autoMode", "back");
+        //         break;
+            
+        // }
+        
+        
+
+        switch (m_chooser.getSelected()){
+            case 0:
+                square();
+                break;
+            case 1:
+                seq();
+                break;
+        }
+        
+        
+
     }
 
     @Override
@@ -254,8 +480,23 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void teleopPeriodic() {
+<<<<<<< HEAD
         
         moveArm();
+=======
+<<<<<<< Updated upstream
+=======
+        
+        moveArm();
+
+        intake();
+
+
+        drive.arcadeDrive(-controller.getRawAxis(LEFT_STICK_Y) /2 , -controller.getRawAxis(RIGHT_STICK_X) / 2);
+
+>>>>>>> Stashed changes
+    }
+>>>>>>> feature/auto
 
         intake();
 

@@ -27,6 +27,11 @@ public class Constants {
     *   public static final int kRightMotor2Port = 3; 
     * }
     */ 
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+=======
+>>>>>>> feature/auto
 
     
     public static final class ControllerConstants{
@@ -44,10 +49,19 @@ public class Constants {
         public static final int RightTalonSRX = 4;
         public static final int RightVictorSPX = 3;
         
+<<<<<<< HEAD
         public static final double FOLD_SPEED = -0.2;
         public static final double OPEN_SPEED = 0.2;
         public static final double INTAKE_SPEED = -0.5;
         public static final double OUTAKE_SPEED = 0.3;
     }
+=======
+        public static final double FOLD_SPEED = -0.15;
+        public static final double OPEN_SPEED = 0.15;
+        public static final double INTAKE_SPEED = -0.5;
+        public static final double OUTAKE_SPEED = 0.3;
+    }
+>>>>>>> Stashed changes
+>>>>>>> feature/auto
 }
 
