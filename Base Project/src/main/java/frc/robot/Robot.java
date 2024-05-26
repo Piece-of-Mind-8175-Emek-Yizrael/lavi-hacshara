@@ -12,12 +12,10 @@
 
 package frc.robot;
 
-<<<<<<< Updated upstream
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.wpilibj.TimedRobot;
-=======
 import static frc.robot.Constants.ControllerConstants.OPERATOR_PORT;
 import static frc.robot.Constants.IntakeConstants.ARM_PORT;
 import static frc.robot.Constants.IntakeConstants.FOLD_SPEED;
@@ -58,7 +56,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
->>>>>>> Stashed changes
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -75,8 +72,7 @@ public class Robot extends TimedRobot {
 
     private RobotContainer m_robotContainer;
 
-<<<<<<< Updated upstream
-=======
+
     public CANSparkMax intake = new CANSparkMax(INTAKE_PORT, MotorType.kBrushless);
     public CANSparkMax arm_motor = new CANSparkMax(ARM_PORT, MotorType.kBrushless);
     private RelativeEncoder arm_Encoder = arm_motor.getEncoder();
@@ -127,7 +123,6 @@ public class Robot extends TimedRobot {
 
     SendableChooser<Integer> m_chooser = new SendableChooser<>();
 
->>>>>>> Stashed changes
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -139,8 +134,7 @@ public class Robot extends TimedRobot {
         m_robotContainer = RobotContainer.getInstance();
         HAL.report(tResourceType.kResourceType_Framework, tInstances.kFramework_RobotBuilder);
         enableLiveWindowInTest(true);
-<<<<<<< Updated upstream
-=======
+
         
         leftVictor.setInverted(false);
         leftTalon.setInverted(false);
@@ -153,7 +147,6 @@ public class Robot extends TimedRobot {
         m_chooser.addOption("square", 0);
         m_chooser.addOption("sequance", 1);
         SmartDashboard.putData("auto chooser", m_chooser);
->>>>>>> Stashed changes
     }
 
     /**
@@ -170,8 +163,6 @@ public class Robot extends TimedRobot {
         // and running subsystem periodic() methods.  This must be called from the robot's periodic
         // block in order for anything in the Command-based framework to work.
         CommandScheduler.getInstance().run();
-<<<<<<< Updated upstream
-=======
         SmartDashboard.putNumber("FWD", controller.getRawAxis(LEFT_STICK_Y));
         SmartDashboard.putNumber("ROT", controller.getRawAxis(RIGHT_STICK_X));
 
@@ -182,7 +173,7 @@ public class Robot extends TimedRobot {
 
         SmartDashboard.putNumber("gyro", gyro.getYaw());
         SmartDashboard.putNumber("last Angle", lastAngle);
->>>>>>> Stashed changes
+
     }
 
 
