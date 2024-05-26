@@ -122,6 +122,21 @@ public class Robot extends TimedRobot {
     boolean moveUp = false;
     boolean moveDown = false;
 
+    enum annoyingPhaseEnum{
+        start,
+        shot,
+        turn,
+        drive,
+        end,
+        done
+    }
+    annoyingPhaseEnum annoyingPhase;
+    double topAngle = 1.892765879631042;
+    double downAngle = 2.430774688720703;
+    boolean turnedOnce = false;
+    boolean done = false;
+    boolean turned = false;
+
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -144,6 +159,7 @@ public class Robot extends TimedRobot {
 
         m_chooser.addOption("square", 0);
         m_chooser.addOption("sequance", 1);
+        m_chooser.addOption("annoyingAuto", 2);
         SmartDashboard.putData("auto chooser", m_chooser);
     }
 
@@ -170,6 +186,7 @@ public class Robot extends TimedRobot {
 
         SmartDashboard.putNumber("gyro", gyro.getYaw());
         SmartDashboard.putNumber("last Angle", lastAngle);
+        SmartDashboard.putNumber("arm angle", arm_motor.getEncoder().getPosition());
     }
 
 
@@ -198,6 +215,7 @@ public class Robot extends TimedRobot {
 
         timer.restart();
         autonomousPhase = Phase.start;
+        annoyingPhase = annoyingPhaseEnum.start;
 
         driveTimer.restart();
         lastAngle = gyro.getYaw();
@@ -282,6 +300,81 @@ public class Robot extends TimedRobot {
         }
     }
 
+    private void annoyingAuto(){
+        switch (annoyingPhase) {
+            case start:
+                if (arm_motor.getEncoder().getPosition() < topAngle){
+                    arm_motor.set(resistGravity() + OPEN_SPEED);
+                }else{
+                    intake.set(OUTAKE_SPEED);
+                    timer.restart();
+                    annoyingPhase = annoyingPhaseEnum.shot;
+                }
+                break;
+            case shot:
+                if (timer.get() >= 0.5){
+                    intake.set(0);
+                    if (done){
+                        annoyingPhase = annoyingPhaseEnum.done;
+                        break;
+                    }
+                    annoyingPhase = annoyingPhaseEnum.turn;
+                }
+                break;
+            case turn:
+                if (turn(180) || turned){
+                    turned = true;
+                    if (!turnedOnce && openLimitSwitch.get()){
+                        turnedOnce = true;
+                        annoyingPhase = annoyingPhaseEnum.drive;
+                        drive.arcadeDrive(-0.2, 0);
+                        intake.set(INTAKE_SPEED);
+                        timer.restart();
+                        turned = false;
+                    }else if (turnedOnce){
+                        turnedOnce = false;
+                        annoyingPhase = annoyingPhaseEnum.drive;
+                        drive.arcadeDrive(-0.2, 0);
+                        timer.restart();
+                    }
+                }
+                if (!turnedOnce){
+                    if (openLimitSwitch.get()){
+                        arm_motor.set(OPEN_SPEED + resistGravity());
+                    }else{
+                        arm_motor.set(0);
+                    }
+                }
+                break;
+            case drive:
+                if (timer.get() >= 2){
+                    if (turnedOnce){
+                        annoyingPhase = annoyingPhaseEnum.turn;
+                    }else if (arm_motor.getEncoder().getPosition() <= downAngle){
+                        annoyingPhase = annoyingPhaseEnum.end;
+                    }
+                    drive.arcadeDrive(0, 0);
+                    intake.set(0);
+                }
+
+                if (!turnedOnce){
+                    if (arm_motor.getEncoder().getPosition() > downAngle){
+                        arm_motor.set(resistGravity() + FOLD_SPEED);
+                    }
+                }
+                break;
+            case end:
+                intake.set(OUTAKE_SPEED);
+                done = true;
+                annoyingPhase = annoyingPhaseEnum.shot;
+                timer.restart();
+                break;
+
+            case done:
+                break;
+        }
+    }
+
     /**
     * This function is called periodically during autonomous.
     */
@@ -295,6 +388,9 @@ public class Robot extends TimedRobot {
                 break;
             case 1:
                 seq();
+                break;
+            case 2:
+                annoyingAuto();
                 break;
         }
         
@@ -371,6 +467,9 @@ public class Robot extends TimedRobot {
             open = false;
             fold = true;
             intakeState = IntakeState.toHold;
+        }else if (controller.getRawButtonPressed(RB)){
+            open = false;
+            fold = false;
         }
         
         if (open && openLimitSwitch.get()){
