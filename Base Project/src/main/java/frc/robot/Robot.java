@@ -52,8 +52,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
->>>>>>> Stashed changes
->>>>>>> feature/auto
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -90,11 +88,10 @@ public class Robot extends TimedRobot {
     boolean open = false;
     boolean fold = false;
 
-<<<<<<< HEAD
-=======
+
     double counter = 0.1;
 
->>>>>>> feature/auto
+
     enum IntakeState{
         toIntake,
         toOuttake,
@@ -103,9 +100,6 @@ public class Robot extends TimedRobot {
 
     IntakeState intakeState = IntakeState.toHold;
     IntakeState lastIntakeState = IntakeState.toHold;
-
-<<<<<<< HEAD
-=======
 
     private Timer timer = new Timer();
     enum Phase{
@@ -153,10 +147,6 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("auto chooser", m_chooser);
     }
 
-    public double resistGravity(){
-        return armFeedforward.calculate(arm_Encoder.getPosition(), 0);
-    }
-
     /**
     * This function is called every robot packet, no matter the mode. Use this for items like
     * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
@@ -171,20 +161,12 @@ public class Robot extends TimedRobot {
         // and running subsystem periodic() methods.  This must be called from the robot's periodic
         // block in order for anything in the Command-based framework to work.
         CommandScheduler.getInstance().run();
-<<<<<<< HEAD
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> feature/auto
         SmartDashboard.putNumber("FWD", controller.getRawAxis(LEFT_STICK_Y));
         SmartDashboard.putNumber("ROT", controller.getRawAxis(RIGHT_STICK_X));
 
         if(!foldLimitSwitch.get()){
             arm_Encoder.setPosition(-0.323);
-            
         }
-<<<<<<< HEAD
-=======
 
         SmartDashboard.putNumber("gyro", gyro.getYaw());
         SmartDashboard.putNumber("last Angle", lastAngle);
@@ -431,88 +413,12 @@ public class Robot extends TimedRobot {
         
     }
 
-    private void intake(){
-        if(controller.getRawButtonPressed(A)){
-            intakeState = IntakeState.toIntake;
-        }
-        else if(controller.getRawButtonPressed(B)){
-            intakeState = IntakeState.toOuttake;
-        }
-        else if(controller.getRawButtonReleased(A) || controller.getRawButtonReleased(B)) {
-            intakeState = IntakeState.toHold;
-        }
-
-        if (lastIntakeState != intakeState){
-            switch (intakeState) {
-            case toIntake:
-                intake.set(INTAKE_SPEED);
-                break;
-            case toOuttake:
-                intake.set(OUTAKE_SPEED);
-                break;
-            case toHold:
-                intake.set(0);
-            }
-
-            lastIntakeState = intakeState;
-        }
-
-    
-    }
-
-    private void moveArm(){
-        if(controller.getRawButtonPressed(X) && foldLimitSwitch.get()){
-            open = false;
-            fold = true;
-        }
-        else if(controller.getRawButtonPressed(Y) && openLimitSwitch.get()){
-            fold = false;
-            open = true;
-        }
-
-        if (controller.getRawButtonPressed(RB)){
-            open = false;
-            fold = false;
-            intakeState = IntakeState.toHold;
-        }
-        else if (controller.getRawButton(LB)){
-            if (openLimitSwitch.get()){
-                open = true;
-            }else {
-                open = false;
-                intakeState = IntakeState.toIntake;
-            }
-        }
-        else if (controller.getRawButtonReleased(LB)){
-            open = false;
-            fold = true;
-            intakeState = IntakeState.toHold;
-        }
-        
-        if (open && openLimitSwitch.get()){
-            arm_motor.set(resistGravity() + OPEN_SPEED);
-        }else if(fold && foldLimitSwitch.get()){
-            arm_motor.set(resistGravity() + FOLD_SPEED);
-        }
-        else if(openLimitSwitch.get() && foldLimitSwitch.get()){
-            arm_motor.set(resistGravity());
-        }
-        else {
-            arm_motor.set(0);
-            open = false;
-            fold = false;
-        }
-    }
 
     /**
      * This function is called periodically during operator control.
      */
     @Override
     public void teleopPeriodic() {
-<<<<<<< HEAD
-        
-        moveArm();
-=======
         
         moveArm();
 
