@@ -27,11 +27,6 @@ public class Constants {
     *   public static final int kRightMotor2Port = 3; 
     * }
     */ 
-<<<<<<< HEAD
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> feature/auto
 
     
     public static final class ControllerConstants{
@@ -61,7 +56,5 @@ public class Constants {
         public static final double INTAKE_SPEED = -0.5;
         public static final double OUTAKE_SPEED = 0.3;
     }
->>>>>>> Stashed changes
->>>>>>> feature/auto
 }
 

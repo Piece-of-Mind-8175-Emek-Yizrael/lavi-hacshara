@@ -12,48 +12,6 @@
 
 package frc.robot;
 
-<<<<<<< HEAD
-import static frc.robot.Constants.IntakeConstants.ARM_PORT;
-import static frc.robot.Constants.IntakeConstants.FOLD_SPEED;
-import static frc.robot.Constants.IntakeConstants.GROUND_SWITCH;
-import static frc.robot.Constants.IntakeConstants.INTAKE_PORT;
-import static frc.robot.Constants.IntakeConstants.INTAKE_SPEED;
-import static frc.robot.Constants.IntakeConstants.LIMIT_SWITCH;
-import static frc.robot.Constants.IntakeConstants.LeftTalonSRX;
-import static frc.robot.Constants.IntakeConstants.LeftVictorSPX;
-import static frc.robot.Constants.IntakeConstants.OPEN_SPEED;
-import static frc.robot.Constants.IntakeConstants.OUTAKE_SPEED;
-import static frc.robot.Constants.IntakeConstants.RightTalonSRX;
-import static frc.robot.Constants.IntakeConstants.RightVictorSPX;
-import static frc.robot.Constants.ControllerConstants.*;
-import static frc.robot.POM_lib.Joysticks.JoystickConstants.*;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.ctre.phoenix.motorcontrol.InvertType;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
-
-=======
-<<<<<<< Updated upstream
->>>>>>> feature/auto
-import edu.wpi.first.hal.FRCNetComm.tInstances;
-import edu.wpi.first.hal.FRCNetComm.tResourceType;
-import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.hal.HAL;
-import edu.wpi.first.wpilibj.AnalogEncoder;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.TimedRobot;
-<<<<<<< HEAD
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.event.EventLoop;
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
-import edu.wpi.first.wpilibj.motorcontrol.Victor;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-=======
-=======
 import static frc.robot.Constants.ControllerConstants.OPERATOR_PORT;
 import static frc.robot.Constants.IntakeConstants.ARM_PORT;
 import static frc.robot.Constants.IntakeConstants.FOLD_SPEED;
@@ -112,11 +70,6 @@ public class Robot extends TimedRobot {
 
     private RobotContainer m_robotContainer;
 
-<<<<<<< HEAD
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> feature/auto
     public CANSparkMax intake = new CANSparkMax(INTAKE_PORT, MotorType.kBrushless);
     public CANSparkMax arm_motor = new CANSparkMax(ARM_PORT, MotorType.kBrushless);
     private RelativeEncoder arm_Encoder = arm_motor.getEncoder();
@@ -172,8 +125,9 @@ public class Robot extends TimedRobot {
 
     SendableChooser<Integer> m_chooser = new SendableChooser<>();
 
->>>>>>> Stashed changes
->>>>>>> feature/auto
+    boolean moveUp = false;
+    boolean moveDown = false;
+
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
@@ -185,18 +139,6 @@ public class Robot extends TimedRobot {
         m_robotContainer = RobotContainer.getInstance();
         HAL.report(tResourceType.kResourceType_Framework, tInstances.kFramework_RobotBuilder);
         enableLiveWindowInTest(true);
-<<<<<<< HEAD
-        
-        leftVictor.setInverted(true);
-        leftTalon.setInverted(true);
-        rightTalon.setInverted(false);
-        rightVictor.setInverted(false);
-
-        leftTalon.follow(leftVictor);
-        rightTalon.follow(rightVictor);
-=======
-<<<<<<< Updated upstream
-=======
         
         leftVictor.setInverted(false);
         leftTalon.setInverted(false);
@@ -209,12 +151,19 @@ public class Robot extends TimedRobot {
         m_chooser.addOption("square", 0);
         m_chooser.addOption("sequance", 1);
         SmartDashboard.putData("auto chooser", m_chooser);
->>>>>>> Stashed changes
->>>>>>> feature/auto
     }
 
+    public double resistGravity(){
+        return armFeedforward.calculate(arm_Encoder.getPosition(), 0);
+    }
 
-    
+    /**
+    * This function is called every robot packet, no matter the mode. Use this for items like
+    * diagnostics that you want ran during disabled, autonomous, teleoperated and test.
+    *
+    * <p>This runs after the mode specific periodic functions, but before
+    * LiveWindow and SmartDashboard integrated updating.
+    */
     @Override
     public void robotPeriodic() {
         // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
@@ -239,8 +188,6 @@ public class Robot extends TimedRobot {
 
         SmartDashboard.putNumber("gyro", gyro.getYaw());
         SmartDashboard.putNumber("last Angle", lastAngle);
->>>>>>> Stashed changes
->>>>>>> feature/auto
     }
 
 
@@ -276,6 +223,105 @@ public class Robot extends TimedRobot {
         counter = 0;
     }
 
+    private void moveArm(){
+        if(controller.getRawButtonPressed(X) && foldLimitSwitch.get()){
+            open = false;
+            fold = true;
+        }
+        else if(controller.getRawButtonPressed(Y) && openLimitSwitch.get()){
+            fold = false;
+            open = true;
+        }
+        else if (!foldLimitSwitch.get() && !moveUp){
+            arm_motor.set(0);
+            moveDown = false;
+        }      
+
+        if (controller.getRawButton(LB)){
+            if (controller.getRawButtonPressed(RB)){
+                open = false;
+                fold = false;
+                intakeState = IntakeState.toHold;
+            }
+        }
+        else if (controller.getRawButton(LB)){
+            if (openLimitSwitch.get()){
+                arm_motor.set(resistGravity() + OPEN_SPEED);
+                open = true;
+            }else {
+                arm_motor.set(0);
+                intake.set(INTAKE_SPEED);
+                open = false;
+                intakeState = IntakeState.toIntake;
+            }
+        }
+        else if (controller.getRawButtonReleased(LB)){
+            open = false;
+            fold = true;
+            intakeState = IntakeState.toHold;
+        }
+        
+        if (open && openLimitSwitch.get()){
+            arm_motor.set(resistGravity() + OPEN_SPEED);
+        }else if(fold && foldLimitSwitch.get()){
+            arm_motor.set(resistGravity() + FOLD_SPEED);
+            intake.set(0);
+        }
+        else if(openLimitSwitch.get() && foldLimitSwitch.get()){
+            arm_motor.set(resistGravity());
+        }else {
+            arm_motor.set(0);
+            open = false;
+            fold = false;
+        }
+                
+    }
+
+    private void intake(){
+        if(controller.getRawButtonPressed(A)){
+            intake.set(INTAKE_SPEED);
+            intakeState = IntakeState.toIntake;
+        }
+        else if(controller.getRawButtonPressed(B)){
+            intake.set(OUTAKE_SPEED);
+            intakeState = IntakeState.toOuttake;
+        }
+        else if(controller.getRawButtonReleased(A) || controller.getRawButtonReleased(B)) {
+            intake.set(0);
+        }
+        
+        
+        if((controller.getRawButtonPressed(X) || moveDown) && foldLimitSwitch.get()){
+            arm_motor.set(resistGravity() + FOLD_SPEED);
+            moveUp = false;
+            moveDown = true;
+            intakeState = IntakeState.toHold;
+        }
+        else if((controller.getRawButtonPressed(Y) || moveUp) && openLimitSwitch.get()){
+            arm_motor.set(resistGravity() + OPEN_SPEED);   
+            moveDown = false;
+            moveUp = true;
+        }
+
+        if (lastIntakeState != intakeState){
+            switch (intakeState) {
+                case toIntake:
+                    intake.set(INTAKE_SPEED);
+                    break;
+                case toOuttake:
+                    intake.set(OUTAKE_SPEED);
+                    break;
+                case toHold:
+                    intake.set(0);
+                    break;
+            }
+
+            lastIntakeState = intakeState;
+        }
+
+    
+    }
+
     private boolean turn(double angle){
         if (gyro.getYaw() <= lastAngle + angle){
             drive.arcadeDrive(0, 0.14, false);
@@ -301,55 +347,55 @@ public class Robot extends TimedRobot {
 
     private void seq(){
         switch (autonomousPhase){
-                    case start:
-                        if (timer.get() >= 2){
-                            autonomousPhase = Phase.open;
-                            break;
-                        }
-
-                    drive.arcadeDrive(0.2 , 0, false);
+            case start:
+                if (timer.get() >= 2){
+                    autonomousPhase = Phase.open;
                     break;
+                }
 
-                    case open:
-                        if (!openLimitSwitch.get()){
-                            autonomousPhase = Phase.take;
-                            intake.set(INTAKE_SPEED);
-                            arm_motor.set(0);
-                            timer.restart();
-                            break;
-                        }
+                drive.arcadeDrive(0.2 , 0, false);
+                break;
 
-                        arm_motor.set(resistGravity() + OPEN_SPEED);
-                        break;
+            case open:
+                if (!openLimitSwitch.get()){
+                    autonomousPhase = Phase.take;
+                    intake.set(INTAKE_SPEED);
+                    arm_motor.set(0);
+                    timer.restart();
+                    break;
+                }
 
-                    case take:
-                        if (timer.get() >= 2){
-                            autonomousPhase = Phase.fold;
-                            intake.set(0);
-                            break;
-                        }
-                        break;
+                arm_motor.set(resistGravity() + OPEN_SPEED);
+                break;
+
+            case take:
+                if (timer.get() >= 2){
+                    autonomousPhase = Phase.fold;
+                    intake.set(0);
+                    break;
+                }
+                break;
             
-                    case fold:
-                        if (!foldLimitSwitch.get()){
-                            autonomousPhase = Phase.back;
-                            arm_motor.set(0);
-                            timer.restart();
-                            break;
-                        }
+            case fold:
+                if (!foldLimitSwitch.get()){
+                    autonomousPhase = Phase.back;
+                    arm_motor.set(0);
+                    timer.restart();
+                    break;
+                }
 
-                        arm_motor.set(resistGravity() + FOLD_SPEED);
-                        break;
+                arm_motor.set(resistGravity() + FOLD_SPEED);
+                break;
 
-                    case back:
-                        if (timer.get() >=2){
-                            autonomousPhase = Phase.done;
-                            break;
-                        }
+            case back:
+                if (timer.get() >=2){
+                    autonomousPhase = Phase.done;
+                    break;
+                }
 
-                        drive.arcadeDrive(-0.2 , 0, false);
-                        break;
-                    }
+                drive.arcadeDrive(-0.2 , 0, false);
+                break;
+        }
     }
 
     /**
@@ -357,23 +403,6 @@ public class Robot extends TimedRobot {
     */
     @Override
     public void autonomousPeriodic() {
-        // SmartDashboard.putNumber("clock", timer.get());
-        // switch (autonomousPhase) {
-        //     case start:
-        //         SmartDashboard.putString("autoMode", "start");
-        //         break;
-        //     case take:
-        //         SmartDashboard.putString("autoMode", "take");
-        //         break;
-        //     case fold:
-        //         SmartDashboard.putString("autoMode", "fold");
-        //         break;
-        //     case back:
-        //         SmartDashboard.putString("autoMode", "back");
-        //         break;
-            
-        // }
-        
         
 
         switch (m_chooser.getSelected()){
@@ -484,8 +513,6 @@ public class Robot extends TimedRobot {
         
         moveArm();
 =======
-<<<<<<< Updated upstream
-=======
         
         moveArm();
 
@@ -494,16 +521,8 @@ public class Robot extends TimedRobot {
 
         drive.arcadeDrive(-controller.getRawAxis(LEFT_STICK_Y) /2 , -controller.getRawAxis(RIGHT_STICK_X) / 2);
 
->>>>>>> Stashed changes
     }
->>>>>>> feature/auto
 
-        intake();
-
-
-        drive.arcadeDrive(controller.getRawAxis(LEFT_STICK_Y) /2 , controller.getRawAxis(RIGHT_STICK_X) / 2);
-
-    }
     @Override
     public void testInit() {
         // Cancels all running commands at the start of test mode.
