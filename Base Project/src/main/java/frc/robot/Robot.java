@@ -74,17 +74,10 @@ public class Robot extends TimedRobot {
     
     public Joystick controller = new Joystick(OPERATOR_PORT);
 
-    private WPI_TalonSRX leftTalon = new WPI_TalonSRX(LeftTalonSRX);
-    private WPI_TalonSRX rightTalon = new WPI_TalonSRX(RightTalonSRX);
-    private WPI_VictorSPX leftVictor = new WPI_VictorSPX(LeftVictorSPX);
-    private WPI_VictorSPX rightVictor = new WPI_VictorSPX(RightVictorSPX);
-
 
     DigitalInput foldLimitSwitch = new DigitalInput(LIMIT_SWITCH);
     DigitalInput openLimitSwitch = new DigitalInput(GROUND_SWITCH);
     ArmFeedforward armFeedforward = new ArmFeedforward(0, 0.048, 0);
-
-    private DifferentialDrive drive = new DifferentialDrive(leftVictor::set, rightVictor::set);
     boolean open = false;
     boolean fold = false;
 
@@ -149,13 +142,6 @@ public class Robot extends TimedRobot {
         HAL.report(tResourceType.kResourceType_Framework, tInstances.kFramework_RobotBuilder);
         enableLiveWindowInTest(true);
         
-        leftVictor.setInverted(false);
-        leftTalon.setInverted(false);
-        rightTalon.setInverted(true);
-        rightVictor.setInverted(true);
-
-        leftTalon.follow(leftVictor);
-        rightTalon.follow(rightVictor);
 
         m_chooser.addOption("square", 0);
         m_chooser.addOption("sequance", 1);
@@ -224,156 +210,156 @@ public class Robot extends TimedRobot {
     }
 
 
-    private boolean turn(double angle){
-        if (gyro.getYaw() <= lastAngle + angle){
-            drive.arcadeDrive(0, 0.14, false);
-            return false;
-        }
-        lastAngle = gyro.getYaw();
-        return true;
-    }
+    // private boolean turn(double angle){
+    //     if (gyro.getYaw() <= lastAngle + angle){
+    //         drive.arcadeDrive(0, 0.14, false);
+    //         return false;
+    //     }
+    //     lastAngle = gyro.getYaw();
+    //     return true;
+    // }
 
-    private void square(){
-        if (counter < 4){
-            if (driveTimer.get() < 2){
-                drive.arcadeDrive(0.18, 0, false);
-                return;
-            }
+    // private void square(){
+    //     if (counter < 4){
+    //         if (driveTimer.get() < 2){
+    //             drive.arcadeDrive(0.18, 0, false);
+    //             return;
+    //         }
                         
-            if (turn(88)){
-                driveTimer.restart();
-                counter++;
-            }
-        }
-    }
+    //         if (turn(88)){
+    //             driveTimer.restart();
+    //             counter++;
+    //         }
+    //     }
+    // }
 
-    private void seq(){
-        switch (autonomousPhase){
-            case start:
-                if (timer.get() >= 2){
-                    autonomousPhase = Phase.open;
-                    break;
-                }
+    // private void seq(){
+    //     switch (autonomousPhase){
+    //         case start:
+    //             if (timer.get() >= 2){
+    //                 autonomousPhase = Phase.open;
+    //                 break;
+    //             }
 
-                drive.arcadeDrive(0.2 , 0, false);
-                break;
+    //             drive.arcadeDrive(0.2 , 0, false);
+    //             break;
 
-            case open:
-                if (!openLimitSwitch.get()){
-                    autonomousPhase = Phase.take;
-                    intake.set(INTAKE_SPEED);
-                    arm_motor.set(0);
-                    timer.restart();
-                    break;
-                }
+    //         case open:
+    //             if (!openLimitSwitch.get()){
+    //                 autonomousPhase = Phase.take;
+    //                 intake.set(INTAKE_SPEED);
+    //                 arm_motor.set(0);
+    //                 timer.restart();
+    //                 break;
+    //             }
 
-                arm_motor.set(resistGravity() + OPEN_SPEED);
-                break;
+    //             arm_motor.set(resistGravity() + OPEN_SPEED);
+    //             break;
 
-            case take:
-                if (timer.get() >= 2){
-                    autonomousPhase = Phase.fold;
-                    intake.set(0);
-                    break;
-                }
-                break;
+    //         case take:
+    //             if (timer.get() >= 2){
+    //                 autonomousPhase = Phase.fold;
+    //                 intake.set(0);
+    //                 break;
+    //             }
+    //             break;
             
-            case fold:
-                if (!foldLimitSwitch.get()){
-                    autonomousPhase = Phase.back;
-                    arm_motor.set(0);
-                    timer.restart();
-                    break;
-                }
+    //         case fold:
+    //             if (!foldLimitSwitch.get()){
+    //                 autonomousPhase = Phase.back;
+    //                 arm_motor.set(0);
+    //                 timer.restart();
+    //                 break;
+    //             }
 
-                arm_motor.set(resistGravity() + FOLD_SPEED);
-                break;
+    //             arm_motor.set(resistGravity() + FOLD_SPEED);
+    //             break;
 
-            case back:
-                if (timer.get() >=2){
-                    autonomousPhase = Phase.done;
-                    break;
-                }
+    //         case back:
+    //             if (timer.get() >=2){
+    //                 autonomousPhase = Phase.done;
+    //                 break;
+    //             }
 
-                drive.arcadeDrive(-0.2 , 0, false);
-                break;
-        }
-    }
+    //             drive.arcadeDrive(-0.2 , 0, false);
+    //             break;
+    //     }
+    // }
 
-    private void annoyingAuto(){
-        switch (annoyingPhase) {
-            case start:
-                if (arm_motor.getEncoder().getPosition() < topAngle){
-                    arm_motor.set(resistGravity() + OPEN_SPEED);
-                }else{
-                    intake.set(OUTAKE_SPEED);
-                    timer.restart();
-                    annoyingPhase = annoyingPhaseEnum.shot;
-                }
-                break;
-            case shot:
-                if (timer.get() >= 0.5){
-                    intake.set(0);
-                    if (done){
-                        annoyingPhase = annoyingPhaseEnum.done;
-                        break;
-                    }
-                    annoyingPhase = annoyingPhaseEnum.turn;
-                }
-                break;
-            case turn:
-                if (turn(180) || turned){
-                    turned = true;
-                    if (!turnedOnce && openLimitSwitch.get()){
-                        turnedOnce = true;
-                        annoyingPhase = annoyingPhaseEnum.drive;
-                        drive.arcadeDrive(-0.2, 0);
-                        intake.set(INTAKE_SPEED);
-                        timer.restart();
-                        turned = false;
-                    }else if (turnedOnce){
-                        turnedOnce = false;
-                        annoyingPhase = annoyingPhaseEnum.drive;
-                        drive.arcadeDrive(-0.2, 0);
-                        timer.restart();
-                    }
-                }
-                if (!turnedOnce){
-                    if (openLimitSwitch.get()){
-                        arm_motor.set(OPEN_SPEED + resistGravity());
-                    }else{
-                        arm_motor.set(0);
-                    }
-                }
-                break;
-            case drive:
-                if (timer.get() >= 2){
-                    if (turnedOnce){
-                        annoyingPhase = annoyingPhaseEnum.turn;
-                    }else if (arm_motor.getEncoder().getPosition() <= downAngle){
-                        annoyingPhase = annoyingPhaseEnum.end;
-                    }
-                    drive.arcadeDrive(0, 0);
-                    intake.set(0);
-                }
+    // private void annoyingAuto(){
+    //     switch (annoyingPhase) {
+    //         case start:
+    //             if (arm_motor.getEncoder().getPosition() < topAngle){
+    //                 arm_motor.set(resistGravity() + OPEN_SPEED);
+    //             }else{
+    //                 intake.set(OUTAKE_SPEED);
+    //                 timer.restart();
+    //                 annoyingPhase = annoyingPhaseEnum.shot;
+    //             }
+    //             break;
+    //         case shot:
+    //             if (timer.get() >= 0.5){
+    //                 intake.set(0);
+    //                 if (done){
+    //                     annoyingPhase = annoyingPhaseEnum.done;
+    //                     break;
+    //                 }
+    //                 annoyingPhase = annoyingPhaseEnum.turn;
+    //             }
+    //             break;
+    //         case turn:
+    //             if (turn(180) || turned){
+    //                 turned = true;
+    //                 if (!turnedOnce && openLimitSwitch.get()){
+    //                     turnedOnce = true;
+    //                     annoyingPhase = annoyingPhaseEnum.drive;
+    //                     drive.arcadeDrive(-0.2, 0);
+    //                     intake.set(INTAKE_SPEED);
+    //                     timer.restart();
+    //                     turned = false;
+    //                 }else if (turnedOnce){
+    //                     turnedOnce = false;
+    //                     annoyingPhase = annoyingPhaseEnum.drive;
+    //                     drive.arcadeDrive(-0.2, 0);
+    //                     timer.restart();
+    //                 }
+    //             }
+    //             if (!turnedOnce){
+    //                 if (openLimitSwitch.get()){
+    //                     arm_motor.set(OPEN_SPEED + resistGravity());
+    //                 }else{
+    //                     arm_motor.set(0);
+    //                 }
+    //             }
+    //             break;
+    //         case drive:
+    //             if (timer.get() >= 2){
+    //                 if (turnedOnce){
+    //                     annoyingPhase = annoyingPhaseEnum.turn;
+    //                 }else if (arm_motor.getEncoder().getPosition() <= downAngle){
+    //                     annoyingPhase = annoyingPhaseEnum.end;
+    //                 }
+    //                 drive.arcadeDrive(0, 0);
+    //                 intake.set(0);
+    //             }
 
-                if (!turnedOnce){
-                    if (arm_motor.getEncoder().getPosition() > downAngle){
-                        arm_motor.set(resistGravity() + FOLD_SPEED);
-                    }
-                }
-                break;
-            case end:
-                intake.set(OUTAKE_SPEED);
-                done = true;
-                annoyingPhase = annoyingPhaseEnum.shot;
-                timer.restart();
-                break;
+    //             if (!turnedOnce){
+    //                 if (arm_motor.getEncoder().getPosition() > downAngle){
+    //                     arm_motor.set(resistGravity() + FOLD_SPEED);
+    //                 }
+    //             }
+    //             break;
+    //         case end:
+    //             intake.set(OUTAKE_SPEED);
+    //             done = true;
+    //             annoyingPhase = annoyingPhaseEnum.shot;
+    //             timer.restart();
+    //             break;
 
-            case done:
-                break;
-        }
-    }
+    //         case done:
+    //             break;
+    //     }
+    // }
 
     /**
     * This function is called periodically during autonomous.
@@ -382,17 +368,17 @@ public class Robot extends TimedRobot {
     public void autonomousPeriodic() {
         
 
-        switch (m_chooser.getSelected()){
-            case 0:
-                square();
-                break;
-            case 1:
-                seq();
-                break;
-            case 2:
-                annoyingAuto();
-                break;
-        }
+        // switch (m_chooser.getSelected()){
+        //     case 0:
+        //         square();
+        //         break;
+        //     case 1:
+        //         seq();
+        //         break;
+        //     case 2:
+        //         annoyingAuto();
+        //         break;
+        // }
         
         
 
@@ -498,7 +484,6 @@ public class Robot extends TimedRobot {
         intake();
 
 
-        drive.arcadeDrive(-controller.getRawAxis(LEFT_STICK_Y) /2 , -controller.getRawAxis(RIGHT_STICK_X) / 2);
 
     }
 
