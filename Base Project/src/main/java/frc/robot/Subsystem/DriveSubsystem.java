@@ -18,7 +18,8 @@ public class DriveSubsystem extends PomSubsystem{
     private WPI_VictorSPX rightVictor = new WPI_VictorSPX(RightVictorSPX);
     private DifferentialDrive drive = new DifferentialDrive(leftVictor::set, rightVictor::set);
 
-    DriveSubsystem(){
+    private static DriveSubsystem instance;
+    private DriveSubsystem(){
         leftVictor.setInverted(false);
         leftTalon.setInverted(false);
         rightTalon.setInverted(true);
@@ -26,6 +27,13 @@ public class DriveSubsystem extends PomSubsystem{
 
         leftTalon.follow(leftVictor);
         rightTalon.follow(rightVictor);
+    }
+
+    public DriveSubsystem getInstance(){
+        if (instance == null)
+            instance = new DriveSubsystem();
+        
+        return instance;
     }
 
     @Override
