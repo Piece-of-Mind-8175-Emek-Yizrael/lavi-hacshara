@@ -115,20 +115,21 @@ public class Robot extends TimedRobot {
     boolean moveUp = false;
     boolean moveDown = false;
 
-    enum annoyingPhaseEnum{
-        start,
-        shot,
-        turn,
-        drive,
-        end,
-        done
-    }
-    annoyingPhaseEnum annoyingPhase;
-    double topAngle = 1.892765879631042;
-    double downAngle = 2.430774688720703;
-    boolean turnedOnce = false;
-    boolean done = false;
-    boolean turned = false;
+    // enum annoyingPhaseEnum{
+    //     start,
+    //     shot,
+    //     turn,
+    //     drive,
+    //     end,
+    //     done
+    // }
+
+    // annoyingPhaseEnum annoyingPhase;
+    // double topAngle = 1.892765879631042;
+    // double downAngle = 2.430774688720703;
+    // boolean turnedOnce = false;
+    // boolean done = false;
+    // boolean turned = false;
 
     /**
      * This function is run when the robot is first started up and should be
@@ -199,14 +200,14 @@ public class Robot extends TimedRobot {
             m_autonomousCommand.schedule();
         }
 
-        timer.restart();
-        autonomousPhase = Phase.start;
-        annoyingPhase = annoyingPhaseEnum.start;
+        // timer.restart();
+        // autonomousPhase = Phase.start;
+        // annoyingPhase = annoyingPhaseEnum.start;
 
-        driveTimer.restart();
-        lastAngle = gyro.getYaw();
+        // driveTimer.restart();
+        // lastAngle = gyro.getYaw();
 
-        counter = 0;
+        // counter = 0;
     }
 
 
