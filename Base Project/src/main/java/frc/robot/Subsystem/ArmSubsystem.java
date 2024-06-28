@@ -13,18 +13,15 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.POM_lib.PomSubsystem;
 
 public class ArmSubsystem extends PomSubsystem{
-    public CANSparkMax arm_motor = new CANSparkMax(ARM_PORT, MotorType.kBrushless);
+    private CANSparkMax arm_motor = new CANSparkMax(ARM_PORT, MotorType.kBrushless);
     private RelativeEncoder arm_Encoder = arm_motor.getEncoder();
-    DigitalInput foldLimitSwitch = new DigitalInput(LIMIT_SWITCH);
-    DigitalInput openLimitSwitch = new DigitalInput(GROUND_SWITCH);
-    ArmFeedforward armFeedforward = new ArmFeedforward(0, 0.048, 0);
+    private DigitalInput foldLimitSwitch = new DigitalInput(LIMIT_SWITCH);
+    private DigitalInput openLimitSwitch = new DigitalInput(GROUND_SWITCH);
+    private ArmFeedforward armFeedforward = new ArmFeedforward(0, 0.048, 0);
 
     private static ArmSubsystem instance;
 
     ArmSubsystem(){
-        if(!foldLimitSwitch.get()){
-            arm_Encoder.setPosition(-0.323);
-        }
         arm_Encoder.setPositionConversionFactor(1/50.0 * 16/42.0 * 2 * Math.PI);
     }
 
@@ -37,8 +34,11 @@ public class ArmSubsystem extends PomSubsystem{
 
     @Override
     public void periodic(){
-        if ((!openLimitSwitch.get() && arm_motor.get() > 0) || !foldLimitSwitch.get() && arm_motor.get() < 0){
-            arm_motor.set(0);
+        // if ((!openLimitSwitch.get() && arm_motor.get() > 0) || !foldLimitSwitch.get() && arm_motor.get() < 0){
+        //     arm_motor.set(0);
+        // }
+        if(!foldLimitSwitch.get()){
+            arm_Encoder.setPosition(-0.323);
         }
     }
 
@@ -50,6 +50,14 @@ public class ArmSubsystem extends PomSubsystem{
         }else {
             arm_motor.set(resistGravity());
         }
+    }
+
+    public boolean getOpenSw(){
+        return !openLimitSwitch.get();
+    }
+
+    public boolean getFoldSw(){
+        return !foldLimitSwitch.get();
     }
     
     @Override

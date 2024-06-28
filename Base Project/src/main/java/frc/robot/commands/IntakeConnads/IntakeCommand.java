@@ -9,9 +9,9 @@ import frc.robot.Subsystem.IntakeSubsystem;
 
 public class IntakeCommand extends Command {
     IntakeSubsystem intake;
-    DoubleSupplier speed;
+    double speed;
 
-    public IntakeCommand(DoubleSupplier speed, IntakeSubsystem intake){
+    public IntakeCommand(double speed, IntakeSubsystem intake){
         this.intake = intake;
         this.speed = speed;
 
@@ -19,8 +19,8 @@ public class IntakeCommand extends Command {
     }
 
     @Override
-    public void initialize(){
-        intake.setMotor(speed.getAsDouble());
+    public void execute(){
+        intake.setMotor(speed);
     }
 
     @Override

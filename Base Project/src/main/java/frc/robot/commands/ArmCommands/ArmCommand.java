@@ -8,9 +8,10 @@ import frc.robot.Subsystem.ArmSubsystem;
 
 public class ArmCommand extends Command{
     ArmSubsystem arm;
-    DoubleSupplier speed;
+    double speed;
+    
 
-    public ArmCommand(DoubleSupplier speed, ArmSubsystem arm){
+    public ArmCommand(double speed, ArmSubsystem arm){
         this.arm = arm;
         this.speed = speed;
 
@@ -19,8 +20,9 @@ public class ArmCommand extends Command{
 
     @Override
     public void initialize(){
-        if (speed.getAsDouble() != 0){
-            arm.setMotor(speed.getAsDouble());
+        if (speed != 0){
+            if ((speed > 0 && !arm.getOpenSw()) || (speed < 0 || arm.getFoldSw()))
+            arm.setMotor(speed);
         }else {
             arm.stopMotor();
         }
@@ -29,5 +31,13 @@ public class ArmCommand extends Command{
     @Override
     public void end(boolean isInterrupted){
         arm.stopMotor();
+    }
+
+    @Override
+    public boolean isFinished(){
+        if ((speed > 0 && arm.getOpenSw()) || (speed < 0 && arm.getFoldSw()) || speed == 0)
+            return true;
+        
+        return false;
     }
 }
