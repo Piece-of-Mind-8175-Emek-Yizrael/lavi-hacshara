@@ -12,48 +12,19 @@
 
 package frc.robot;
 
-import static frc.robot.Constants.ControllerConstants.OPERATOR_PORT;
-import static frc.robot.Constants.IntakeConstants.ARM_PORT;
-import static frc.robot.Constants.IntakeConstants.FOLD_SPEED;
-import static frc.robot.Constants.IntakeConstants.GROUND_SWITCH;
-import static frc.robot.Constants.IntakeConstants.INTAKE_PORT;
-import static frc.robot.Constants.IntakeConstants.INTAKE_SPEED;
-import static frc.robot.Constants.IntakeConstants.LIMIT_SWITCH;
-import static frc.robot.Constants.IntakeConstants.LeftTalonSRX;
-import static frc.robot.Constants.IntakeConstants.LeftVictorSPX;
-import static frc.robot.Constants.IntakeConstants.OPEN_SPEED;
-import static frc.robot.Constants.IntakeConstants.OUTAKE_SPEED;
-import static frc.robot.Constants.IntakeConstants.RightTalonSRX;
-import static frc.robot.Constants.IntakeConstants.RightVictorSPX;
-import static frc.robot.POM_lib.Joysticks.JoystickConstants.A;
-import static frc.robot.POM_lib.Joysticks.JoystickConstants.B;
-import static frc.robot.POM_lib.Joysticks.JoystickConstants.LB;
-import static frc.robot.POM_lib.Joysticks.JoystickConstants.LEFT_STICK_Y;
-import static frc.robot.POM_lib.Joysticks.JoystickConstants.RB;
-import static frc.robot.POM_lib.Joysticks.JoystickConstants.RIGHT_STICK_X;
-import static frc.robot.POM_lib.Joysticks.JoystickConstants.X;
-import static frc.robot.POM_lib.Joysticks.JoystickConstants.Y;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
-import com.ctre.phoenix.sensors.WPI_PigeonIMU;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.RelativeEncoder;
+// import com.ctre.phoenix.sensors.WPI_PigeonIMU;
+
 
 
 
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
-import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import edu.wpi.first.wpilibj.Timer;
+// import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -70,47 +41,42 @@ public class Robot extends TimedRobot {
 
     private RobotContainer m_robotContainer;
 
-    
-    
-    
-    public Joystick controller = new Joystick(OPERATOR_PORT);
-
-    boolean open = false;
-    boolean fold = false;
+    // boolean open = false;
+    // boolean fold = false;
 
 
-    double counter = 0.1;
+    // double counter = 0.1;
 
 
-    enum IntakeState{
-        toIntake,
-        toOuttake,
-        toHold
-    }
+    // enum IntakeState{
+    //     toIntake,
+    //     toOuttake,
+    //     toHold
+    // }
 
-    IntakeState intakeState = IntakeState.toHold;
-    IntakeState lastIntakeState = IntakeState.toHold;
+    // IntakeState intakeState = IntakeState.toHold;
+    // IntakeState lastIntakeState = IntakeState.toHold;
 
-    private Timer timer = new Timer();
-    enum Phase{
-        start,
-        open,
-        take,
-        fold,
-        back,
-        done
-    }
-    Phase autonomousPhase;
+    // private Timer timer = new Timer();
+    // enum Phase{
+    //     start,
+    //     open,
+    //     take,
+    //     fold,
+    //     back,
+    //     done
+    // }
+    // Phase autonomousPhase;
 
-    int turns = 0;
-    private Timer driveTimer = new Timer();
-    WPI_PigeonIMU gyro = new WPI_PigeonIMU(7);
-    double lastAngle;
+    // int turns = 0;
+    // private Timer driveTimer = new Timer();
+    // WPI_PigeonIMU gyro = new WPI_PigeonIMU(7);
+    // double lastAngle;
 
-    SendableChooser<Integer> m_chooser = new SendableChooser<>();
+    // SendableChooser<Integer> m_chooser = new SendableChooser<>();
 
-    boolean moveUp = false;
-    boolean moveDown = false;
+    // boolean moveUp = false;
+    // boolean moveDown = false;
 
     // enum annoyingPhaseEnum{
     //     start,
@@ -141,10 +107,10 @@ public class Robot extends TimedRobot {
         enableLiveWindowInTest(true);
         
 
-        m_chooser.addOption("square", 0);
-        m_chooser.addOption("sequance", 1);
-        m_chooser.addOption("annoyingAuto", 2);
-        SmartDashboard.putData("auto chooser", m_chooser);
+        // m_chooser.addOption("square", 0);
+        // m_chooser.addOption("sequance", 1);
+        // m_chooser.addOption("annoyingAuto", 2);
+        // SmartDashboard.putData("auto chooser", m_chooser);
     }
 
     /**
@@ -161,12 +127,6 @@ public class Robot extends TimedRobot {
         // and running subsystem periodic() methods.  This must be called from the robot's periodic
         // block in order for anything in the Command-based framework to work.
         CommandScheduler.getInstance().run();
-        SmartDashboard.putNumber("FWD", controller.getRawAxis(LEFT_STICK_Y));
-        SmartDashboard.putNumber("ROT", controller.getRawAxis(RIGHT_STICK_X));
-
-        // if(!foldLimitSwitch.get()){
-        //     arm_Encoder.setPosition(-0.323);
-        // }
 
         // SmartDashboard.putNumber("gyro", gyro.getYaw());
         // SmartDashboard.putNumber("last Angle", lastAngle);
@@ -395,93 +355,13 @@ public class Robot extends TimedRobot {
         
     }
 
-    // private void intake(){
-    //     if(controller.getRawButtonPressed(A)){
-    //         intakeState = IntakeState.toIntake;
-    //     }
-    //     else if(controller.getRawButtonPressed(B)){
-    //         intakeState = IntakeState.toOuttake;
-    //     }
-    //     else if(controller.getRawButtonReleased(A) || controller.getRawButtonReleased(B)) {
-    //         intakeState = IntakeState.toHold;
-    //     }
 
-    //     if (lastIntakeState != intakeState){
-    //         switch (intakeState) {
-    //         case toIntake:
-    //             intake.set(INTAKE_SPEED);
-    //             break;
-    //         case toOuttake:
-    //             intake.set(OUTAKE_SPEED);
-    //             break;
-    //         case toHold:
-    //             intake.set(0);
-    //         }
-
-    //         lastIntakeState = intakeState;
-    //     }
-
-    
-    // }
-
-    // private void moveArm(){
-    //     if(controller.getRawButtonPressed(X) && foldLimitSwitch.get()){
-    //         open = false;
-    //         fold = true;
-    //     }
-    //     else if(controller.getRawButtonPressed(Y) && openLimitSwitch.get()){
-    //         fold = false;
-    //         open = true;
-    //     }
-
-    //     if (controller.getRawButtonPressed(RB)){
-    //         open = false;
-    //         fold = false;
-    //         intakeState = IntakeState.toHold;
-    //     }
-    //     else if (controller.getRawButton(LB)){
-    //         if (openLimitSwitch.get()){
-    //             open = true;
-    //         }else {
-    //             open = false;
-    //             intakeState = IntakeState.toIntake;
-    //         }
-    //     }
-    //     else if (controller.getRawButtonReleased(LB)){
-    //         open = false;
-    //         fold = true;
-    //         intakeState = IntakeState.toHold;
-    //     }else if (controller.getRawButtonPressed(RB)){
-    //         open = false;
-    //         fold = false;
-    //     }
-        
-    //     if (open && openLimitSwitch.get()){
-    //         arm_motor.set(resistGravity() + OPEN_SPEED);
-    //     }else if(fold && foldLimitSwitch.get()){
-    //         arm_motor.set(resistGravity() + FOLD_SPEED);
-    //     }
-    //     else if(openLimitSwitch.get() && foldLimitSwitch.get()){
-    //         arm_motor.set(resistGravity());
-    //     }
-    //     else {
-    //         arm_motor.set(0);
-    //         open = false;
-    //         fold = false;
-    //     }
-    // }
 
     /**
      * This function is called periodically during operator control.
      */
     @Override
     public void teleopPeriodic() {
-        
-        // moveArm();
-
-        // intake();
-
-
 
     }
 

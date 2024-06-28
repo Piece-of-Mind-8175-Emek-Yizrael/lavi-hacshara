@@ -1,8 +1,5 @@
 package frc.robot.commands.ArmCommands;
 
-
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Subsystem.ArmSubsystem;
 
@@ -19,10 +16,10 @@ public class ArmCommand extends Command{
     }
 
     @Override
-    public void initialize(){
+    public void execute(){
         if (speed != 0){
             if ((speed > 0 && !arm.getOpenSw()) || (speed < 0 || arm.getFoldSw()))
-            arm.setMotor(speed);
+            arm.setMotor(speed + arm.resistGravity());
         }else {
             arm.stopMotor();
         }

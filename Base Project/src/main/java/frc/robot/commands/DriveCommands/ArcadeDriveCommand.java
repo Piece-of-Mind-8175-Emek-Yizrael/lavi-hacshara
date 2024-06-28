@@ -19,7 +19,7 @@ public class ArcadeDriveCommand extends Command {
     }
 
     @Override
-    public void initialize(){
+    public void execute(){
         driveSubsystem.arcadeDrive(speed.getAsDouble(), rotation.getAsDouble());
     }
 

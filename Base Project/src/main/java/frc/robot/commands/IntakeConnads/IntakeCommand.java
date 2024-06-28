@@ -1,9 +1,5 @@
 package frc.robot.commands.IntakeConnads;
 
-import java.util.function.DoubleSupplier;
-
-import com.fasterxml.jackson.databind.ser.std.NumberSerializers.DoubleSerializer;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Subsystem.IntakeSubsystem;
 
@@ -19,7 +15,7 @@ public class IntakeCommand extends Command {
     }
 
     @Override
-    public void execute(){
+    public void initialize(){
         intake.setMotor(speed);
     }
 

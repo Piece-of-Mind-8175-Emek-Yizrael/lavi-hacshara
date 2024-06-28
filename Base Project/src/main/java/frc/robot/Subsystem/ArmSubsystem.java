@@ -34,9 +34,6 @@ public class ArmSubsystem extends PomSubsystem{
 
     @Override
     public void periodic(){
-        // if ((!openLimitSwitch.get() && arm_motor.get() > 0) || !foldLimitSwitch.get() && arm_motor.get() < 0){
-        //     arm_motor.set(0);
-        // }
         if(!foldLimitSwitch.get()){
             arm_Encoder.setPosition(-0.323);
         }
