@@ -41,6 +41,8 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 
+
+
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
@@ -68,16 +70,11 @@ public class Robot extends TimedRobot {
 
     private RobotContainer m_robotContainer;
 
-    public CANSparkMax intake = new CANSparkMax(INTAKE_PORT, MotorType.kBrushless);
-    public CANSparkMax arm_motor = new CANSparkMax(ARM_PORT, MotorType.kBrushless);
-    private RelativeEncoder arm_Encoder = arm_motor.getEncoder();
+    
+    
     
     public Joystick controller = new Joystick(OPERATOR_PORT);
 
-
-    DigitalInput foldLimitSwitch = new DigitalInput(LIMIT_SWITCH);
-    DigitalInput openLimitSwitch = new DigitalInput(GROUND_SWITCH);
-    ArmFeedforward armFeedforward = new ArmFeedforward(0, 0.048, 0);
     boolean open = false;
     boolean fold = false;
 
@@ -167,13 +164,13 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("FWD", controller.getRawAxis(LEFT_STICK_Y));
         SmartDashboard.putNumber("ROT", controller.getRawAxis(RIGHT_STICK_X));
 
-        if(!foldLimitSwitch.get()){
-            arm_Encoder.setPosition(-0.323);
-        }
+        // if(!foldLimitSwitch.get()){
+        //     arm_Encoder.setPosition(-0.323);
+        // }
 
-        SmartDashboard.putNumber("gyro", gyro.getYaw());
-        SmartDashboard.putNumber("last Angle", lastAngle);
-        SmartDashboard.putNumber("arm angle", arm_motor.getEncoder().getPosition());
+        // SmartDashboard.putNumber("gyro", gyro.getYaw());
+        // SmartDashboard.putNumber("last Angle", lastAngle);
+        // SmartDashboard.putNumber("arm angle", arm_motor.getEncoder().getPosition());
     }
 
 
@@ -394,85 +391,85 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             m_autonomousCommand.cancel();
         }
-        arm_Encoder.setPositionConversionFactor(1/50.0 * 16/42.0 * 2 * Math.PI);
+        
         
     }
 
-    private void intake(){
-        if(controller.getRawButtonPressed(A)){
-            intakeState = IntakeState.toIntake;
-        }
-        else if(controller.getRawButtonPressed(B)){
-            intakeState = IntakeState.toOuttake;
-        }
-        else if(controller.getRawButtonReleased(A) || controller.getRawButtonReleased(B)) {
-            intakeState = IntakeState.toHold;
-        }
+    // private void intake(){
+    //     if(controller.getRawButtonPressed(A)){
+    //         intakeState = IntakeState.toIntake;
+    //     }
+    //     else if(controller.getRawButtonPressed(B)){
+    //         intakeState = IntakeState.toOuttake;
+    //     }
+    //     else if(controller.getRawButtonReleased(A) || controller.getRawButtonReleased(B)) {
+    //         intakeState = IntakeState.toHold;
+    //     }
 
-        if (lastIntakeState != intakeState){
-            switch (intakeState) {
-            case toIntake:
-                intake.set(INTAKE_SPEED);
-                break;
-            case toOuttake:
-                intake.set(OUTAKE_SPEED);
-                break;
-            case toHold:
-                intake.set(0);
-            }
+    //     if (lastIntakeState != intakeState){
+    //         switch (intakeState) {
+    //         case toIntake:
+    //             intake.set(INTAKE_SPEED);
+    //             break;
+    //         case toOuttake:
+    //             intake.set(OUTAKE_SPEED);
+    //             break;
+    //         case toHold:
+    //             intake.set(0);
+    //         }
 
-            lastIntakeState = intakeState;
-        }
+    //         lastIntakeState = intakeState;
+    //     }
 
     
-    }
+    // }
 
-    private void moveArm(){
-        if(controller.getRawButtonPressed(X) && foldLimitSwitch.get()){
-            open = false;
-            fold = true;
-        }
-        else if(controller.getRawButtonPressed(Y) && openLimitSwitch.get()){
-            fold = false;
-            open = true;
-        }
+    // private void moveArm(){
+    //     if(controller.getRawButtonPressed(X) && foldLimitSwitch.get()){
+    //         open = false;
+    //         fold = true;
+    //     }
+    //     else if(controller.getRawButtonPressed(Y) && openLimitSwitch.get()){
+    //         fold = false;
+    //         open = true;
+    //     }
 
-        if (controller.getRawButtonPressed(RB)){
-            open = false;
-            fold = false;
-            intakeState = IntakeState.toHold;
-        }
-        else if (controller.getRawButton(LB)){
-            if (openLimitSwitch.get()){
-                open = true;
-            }else {
-                open = false;
-                intakeState = IntakeState.toIntake;
-            }
-        }
-        else if (controller.getRawButtonReleased(LB)){
-            open = false;
-            fold = true;
-            intakeState = IntakeState.toHold;
-        }else if (controller.getRawButtonPressed(RB)){
-            open = false;
-            fold = false;
-        }
+    //     if (controller.getRawButtonPressed(RB)){
+    //         open = false;
+    //         fold = false;
+    //         intakeState = IntakeState.toHold;
+    //     }
+    //     else if (controller.getRawButton(LB)){
+    //         if (openLimitSwitch.get()){
+    //             open = true;
+    //         }else {
+    //             open = false;
+    //             intakeState = IntakeState.toIntake;
+    //         }
+    //     }
+    //     else if (controller.getRawButtonReleased(LB)){
+    //         open = false;
+    //         fold = true;
+    //         intakeState = IntakeState.toHold;
+    //     }else if (controller.getRawButtonPressed(RB)){
+    //         open = false;
+    //         fold = false;
+    //     }
         
-        if (open && openLimitSwitch.get()){
-            arm_motor.set(resistGravity() + OPEN_SPEED);
-        }else if(fold && foldLimitSwitch.get()){
-            arm_motor.set(resistGravity() + FOLD_SPEED);
-        }
-        else if(openLimitSwitch.get() && foldLimitSwitch.get()){
-            arm_motor.set(resistGravity());
-        }
-        else {
-            arm_motor.set(0);
-            open = false;
-            fold = false;
-        }
-    }
+    //     if (open && openLimitSwitch.get()){
+    //         arm_motor.set(resistGravity() + OPEN_SPEED);
+    //     }else if(fold && foldLimitSwitch.get()){
+    //         arm_motor.set(resistGravity() + FOLD_SPEED);
+    //     }
+    //     else if(openLimitSwitch.get() && foldLimitSwitch.get()){
+    //         arm_motor.set(resistGravity());
+    //     }
+    //     else {
+    //         arm_motor.set(0);
+    //         open = false;
+    //         fold = false;
+    //     }
+    // }
 
     /**
      * This function is called periodically during operator control.
@@ -480,9 +477,9 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
         
-        moveArm();
+        // moveArm();
 
-        intake();
+        // intake();
 
 
 
@@ -501,9 +498,6 @@ public class Robot extends TimedRobot {
     public void testPeriodic() {
     }
 
-    public double resistGravity(){
-        return armFeedforward.calculate(arm_Encoder.getPosition(), 0);
-    }
   
 
 }
