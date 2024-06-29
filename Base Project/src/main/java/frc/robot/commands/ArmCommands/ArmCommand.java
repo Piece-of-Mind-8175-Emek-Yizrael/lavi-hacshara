@@ -19,9 +19,11 @@ public class ArmCommand extends Command{
     public void execute(){
         if (speed != 0){
             if ((speed > 0 && !arm.getOpenSw()) || (speed < 0 || arm.getFoldSw()))
-            arm.setMotor(speed + arm.resistGravity());
-        }else {
+                arm.setMotor(speed + arm.resistGravity());
+        }else if (arm.getOpenSw() || arm.getFoldSw()){
             arm.stopMotor();
+        }else {
+            arm.setMotor(arm.resistGravity());
         }
     }
 

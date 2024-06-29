@@ -23,4 +23,9 @@ public class IntakeCommand extends Command {
     public void end(boolean isInterrupted){
         intake.stopMotor();
     }
+
+    @Override
+    public boolean isFinished(){
+        return true;
+    }
 }
