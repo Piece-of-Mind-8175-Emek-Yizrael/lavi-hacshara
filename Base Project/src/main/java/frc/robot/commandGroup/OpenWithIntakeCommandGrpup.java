@@ -1,6 +1,5 @@
 package frc.robot.commandGroup;
 
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Subsystem.ArmSubsystem;
 import frc.robot.Subsystem.IntakeSubsystem;
